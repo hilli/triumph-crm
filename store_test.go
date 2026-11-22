@@ -150,6 +150,8 @@ func TestValidationPreservesState(t *testing.T) {
 		{"negative inventory price", "motorcycles", "price", "-1"},
 		{"invalid year", "motorcycles", "year", "1899"},
 		{"future year", "motorcycles", "year", "9999"},
+		{"32-bit wrapping inventory year", "motorcycles", "year", "4294969320"},
+		{"native overflow inventory year", "motorcycles", "year", "9223372036854775808"},
 		{"invalid VIN", "motorcycles", "vin", "SMTI40HL5NT123456"},
 		{"short VIN", "motorcycles", "vin", "123"},
 		{"empty model", "motorcycles", "model", ""},
@@ -164,6 +166,8 @@ func TestValidationPreservesState(t *testing.T) {
 		{"missing owned customer", "owned", "customer_id", "999"},
 		{"invalid owned VIN", "owned", "vin", "bad"},
 		{"invalid owned year", "owned", "year", "1800"},
+		{"32-bit wrapping owned year", "owned", "year", "4294969320"},
+		{"native overflow owned year", "owned", "year", "9223372036854775808"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

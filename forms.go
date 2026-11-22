@@ -151,9 +151,16 @@ func applyValues(s *state, kind string, id int64, values url.Values) (int64, err
 	number := func(name string) (int64, error) {
 		n, err := strconv.ParseInt(value(name), 10, 64)
 		if err != nil || n < 1 {
-			return 0, errors.New("Wybierz istniejącego klienta i motocykl; rok musi być liczbą.")
+			return 0, errors.New("Wybierz istniejącego klienta i motocykl.")
 		}
 		return n, nil
+	}
+	modelYear := func() (int, error) {
+		year, err := strconv.Atoi(value("year"))
+		if err != nil || !validYear(year) {
+			return 0, errors.New("Rok musi być liczbą od 1900 do przyszłego roku.")
+		}
+		return year, nil
 	}
 	switch kind {
 	case "customers":
@@ -162,7 +169,7 @@ func applyValues(s *state, kind string, id int64, values url.Values) (int64, err
 			Email: value("email"), Phone: value("phone"), Street: value("street"), PostalCode: value("postal_code"),
 			City: value("city"), Country: value("country")}
 	case "motorcycles":
-		year, err := number("year")
+		year, err := modelYear()
 		if err != nil {
 			return 0, err
 		}
@@ -172,19 +179,19 @@ func applyValues(s *state, kind string, id int64, values url.Values) (int64, err
 		}
 		m := s.Motorcycles[id]
 		s.Motorcycles[id] = Motorcycle{Audit: audit(m.Audit), ID: id, Model: value("model"), VIN: strings.ToUpper(value("vin")),
-			Color: value("color"), Year: int(year), Price: price}
+			Color: value("color"), Year: year, Price: price}
 	case "owned":
 		customer, err := number("customer_id")
 		if err != nil {
 			return 0, err
 		}
-		year, err := number("year")
+		year, err := modelYear()
 		if err != nil {
 			return 0, err
 		}
 		b := s.Owned[id]
 		s.Owned[id] = CustomerMotorcycle{Audit: audit(b.Audit), ID: id, CustomerID: customer, Make: value("make"),
-			Model: value("model"), VIN: strings.ToUpper(value("vin")), Year: int(year), Registration: value("registration")}
+			Model: value("model"), VIN: strings.ToUpper(value("vin")), Year: year, Registration: value("registration")}
 	case "contracts":
 		customer, err := number("customer_id")
 		if err != nil {

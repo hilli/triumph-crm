@@ -1,0 +1,51 @@
+{{define "dashboard"}}
+{{template "header" .}}
+<section class="hero"><div><p class="eyebrow">TWÓJ KOLEJNY ROZDZIAŁ</p><h2>Stworzone do jazdy.<br>Gotowe na sprzedaż.</h2><p>Zadbaj o klienta od pierwszego kontaktu do odbioru motocykla.</p><a class="button button-light" href="/customers/new">+ Dodaj klienta</a></div><div class="hero-art" aria-hidden="true"><span class="wheel wheel-one"></span><span class="wheel wheel-two"></span><span class="bike-line"></span><strong>TRIUMPH</strong></div></section>
+<section class="stats" aria-label="Statystyki salonu">{{range .Counts}}<a class="stat" href="{{.URL}}"><span>{{.Label}}</span><strong>{{.Value}}</strong><small>Zobacz rekordy ↗</small></a>{{end}}</section>
+{{template "sections" .}}
+{{template "footer" .}}
+{{end}}
+
+{{define "list"}}
+{{template "header" .}}
+<section class="panel">
+<div class="toolbar">
+  <form method="get" class="search">
+    <label class="sr-only" for="q">Wyszukaj rekordy</label><input id="q" type="search" name="q" value="{{.Query}}" placeholder="Szukaj po nazwie, VIN, kontakcie…">
+    {{if .Filters}}<label class="sr-only" for="status">Status</label><select id="status" name="status">{{range .Filters}}<option value="{{.Value}}" {{if .Selected}}selected{{end}}>{{.Label}}</option>{{end}}</select>{{end}}
+    <button class="button button-secondary" type="submit">Szukaj</button>
+    <a class="clear" href="/{{.Kind}}">Wyczyść</a>
+  </form>
+  <a class="button" href="/{{.Kind}}/new">+ Dodaj rekord</a>
+</div>
+{{template "table" .}}
+</section>
+{{template "footer" .}}
+{{end}}
+
+{{define "form"}}
+{{template "header" .}}
+<section class="panel form-panel">
+  <form method="post" action="{{.Action}}">
+    <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+    <div class="form-grid">{{range .Fields}}
+      <div class="form-field"><label for="{{.Name}}">{{.Label}}{{if .Required}} <span aria-hidden="true">*</span>{{end}}</label>
+      {{if eq .Type "select"}}<select id="{{.Name}}" name="{{.Name}}" {{if .Required}}required{{end}}>{{range .Options}}<option value="{{.Value}}" {{if .Selected}}selected{{end}}>{{.Label}}</option>{{end}}</select>
+      {{else}}<input id="{{.Name}}" name="{{.Name}}" type="{{.Type}}" value="{{.Value}}" {{if .Required}}required{{end}} {{if eq .Type "number"}}min="1900" max="9999"{{else}}maxlength="250"{{end}} {{if or (eq .Name "price") (eq .Name "deposit")}}inputmode="decimal"{{end}} {{if .Hint}}aria-describedby="{{.Name}}-hint"{{end}}>
+      {{end}}{{if .Hint}}<small id="{{.Name}}-hint">{{.Hint}}</small>{{end}}</div>
+    {{end}}</div>
+    <div class="form-actions"><button class="button" type="submit">Zapisz zmiany</button><a class="button button-secondary" href="{{if .RecordURL}}{{.RecordURL}}{{else}}/{{.Kind}}{{end}}">Anuluj</a><span>* Pola wymagane</span></div>
+  </form>
+</section>
+{{if eq .Kind "contracts"}}<p class="help-note">Rejestr sprzedaży salonu — nie zastępuje kompletnego dokumentu prawnego umowy.</p>{{end}}
+{{template "footer" .}}
+{{end}}
+
+{{define "detail"}}
+{{template "header" .}}
+<div class="detail-actions"><a class="button" href="{{.RecordURL}}/edit">Edytuj rekord</a><a class="button button-secondary" href="/{{.Kind}}">← Wróć do listy</a></div>
+<section class="panel detail-panel"><dl class="detail-grid">{{range .Details}}<div><dt>{{.Label}}</dt><dd>{{if .URL}}<a href="{{.URL}}">{{.Value}}</a>{{else}}{{if .Value}}{{.Value}}{{else}}—{{end}}{{end}}</dd></div>{{end}}</dl></section>
+{{template "sections" .}}
+{{if .CanDelete}}<details class="delete-panel"><summary>Usuń ten rekord</summary><p>Operacja jest trwała. Klienta nie można usunąć, jeśli ma motocykle lub umowy. Motocykla z magazynu nie można usunąć, jeśli ma jakąkolwiek umowę — również anulowaną.</p><form method="post" action="{{.RecordURL}}/delete"><input type="hidden" name="csrf_token" value="{{.CSRF}}"><button class="button button-danger" type="submit">Potwierdzam — usuń rekord</button></form></details>{{end}}
+{{template "footer" .}}
+{{end}}

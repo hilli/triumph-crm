@@ -1,0 +1,49 @@
+{{define "header"}}<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>{{.Title}} · Triumph Polska CRM</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<a class="skip" href="#main">Przejdź do treści</a>
+<header class="topbar">
+  <a class="brand" href="/" aria-label="Triumph Polska — pulpit"><span class="brand-mark">T</span><span>TRIUMPH <small>POLSKA / CRM</small></span></a>
+  <span class="secure-label">● Strefa salonu</span>
+</header>
+<div class="shell">
+  <aside class="sidebar">
+    <p class="nav-label">ZARZĄDZANIE SALONEM</p>
+    <nav aria-label="Nawigacja główna">
+      <a href="/" {{if eq .Kind ""}}aria-current="page"{{end}}>Pulpit <span>↗</span></a>
+      <a href="/customers" {{if eq .Kind "customers"}}aria-current="page"{{end}}>Klienci <span>01</span></a>
+      <a href="/motorcycles" {{if eq .Kind "motorcycles"}}aria-current="page"{{end}}>Magazyn <span>02</span></a>
+      <a href="/owned" {{if eq .Kind "owned"}}aria-current="page"{{end}}>Motocykle klientów <span>03</span></a>
+      <a href="/contracts" {{if eq .Kind "contracts"}}aria-current="page"{{end}}>Umowy <span>04</span></a>
+    </nav>
+    <div class="sidebar-note"><strong>FOR THE RIDE.</strong><p>Relacje, które zaczynają się od pasji.</p></div>
+  </aside>
+  <main id="main">
+    <div class="page-heading"><div><p class="eyebrow">TRIUMPH POLSKA</p><h1>{{.Title}}</h1><p class="subtitle">{{.Subtitle}}</p></div></div>
+    {{if .Error}}<div class="alert" role="alert"><strong>Nie zapisano zmian.</strong> {{.Error}}</div>{{end}}
+{{end}}
+{{define "footer"}}
+    <footer class="footer"><span>Triumph Polska · Salon CRM</span><span>PLN / Europe–Warsaw</span></footer>
+  </main>
+</div>
+</body>
+</html>{{end}}
+{{define "table"}}
+<div class="table-wrap">
+<table>
+  <thead><tr>{{range .Headers}}<th scope="col">{{.}}</th>{{end}}</tr></thead>
+  <tbody>{{range .Rows}}<tr>{{range .Cells}}<td>{{if .URL}}<a href="{{.URL}}">{{.Text}}</a>{{else}}{{if .Text}}{{.Text}}{{else}}—{{end}}{{end}}</td>{{end}}</tr>{{else}}<tr><td colspan="5" class="empty">Brak rekordów. Dodaj pierwszy wpis lub zmień kryteria wyszukiwania.</td></tr>{{end}}</tbody>
+</table>
+</div>{{end}}
+{{define "sections"}}{{range .Sections}}
+<section class="panel related">
+  <div class="section-heading"><h2>{{.Title}}</h2>{{if .AddURL}}<a class="button button-small" href="{{.AddURL}}">+ Dodaj</a>{{end}}</div>
+  {{template "table" .}}
+</section>{{end}}{{end}}
